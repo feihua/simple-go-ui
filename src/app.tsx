@@ -3,7 +3,7 @@ import { BasicLayoutProps, Settings as LayoutSettings } from '@ant-design/pro-la
 import { notification } from 'antd';
 import { history, RequestConfig } from 'umi';
 import RightContent from '@/components/RightContent';
-import Footer from '@/components/Footer';
+// import Footer from '@/components/Footer';
 import { ResponseError } from 'umi-request';
 import { queryCurrent } from './services/user';
 import defaultSettings from '../config/defaultSettings';
@@ -45,7 +45,7 @@ export const layout = ({
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
-    footerRender: () => <Footer />,
+    // footerRender: () => <Footer />,
     onPageChange: () => {
       const { currentUser } = initialState;
       const { location } = history;
