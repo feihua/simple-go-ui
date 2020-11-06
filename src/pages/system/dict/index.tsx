@@ -80,9 +80,12 @@ const TableList: React.FC<{}> = () => {
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: '规则名称',
-      dataIndex: 'name',
-      tip: '规则名称是唯一的 key',
+      title: '编号',
+      dataIndex: 'id',
+    },
+    {
+      title: '数据值',
+      dataIndex: 'value',
       formItemProps: {
         rules: [
           {
@@ -96,31 +99,64 @@ const TableList: React.FC<{}> = () => {
       },
     },
     {
+      title: '标签名',
+      dataIndex: 'label',
+    },
+    {
+      title: '类型',
+      dataIndex: 'type',
+    },
+    {
       title: '描述',
-      dataIndex: 'desc',
+      dataIndex: 'description',
       valueType: 'textarea',
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
-      sorter: true,
-      hideInForm: true,
-      renderText: (val: string) => `${val} 万`,
+      title: '排序',
+      dataIndex: 'sort',
     },
     {
       title: '状态',
-      dataIndex: 'status',
+      dataIndex: 'del_flag',
       hideInForm: true,
       valueEnum: {
-        0: { text: '关闭', status: 'Default' },
-        1: { text: '运行中', status: 'Processing' },
-        2: { text: '已上线', status: 'Success' },
-        3: { text: '异常', status: 'Error' },
+        0: { text: '正常', status: 'Success' },
+        1: { text: '已删除', status: 'Error' },
       },
     },
     {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
+      title: '备注',
+      dataIndex: 'remarks',
+      valueType: 'textarea',
+    },
+    {
+      title: '创建人',
+      dataIndex: 'create_by',
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'create_time',
+      sorter: true,
+      valueType: 'dateTime',
+      hideInForm: true,
+      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+        const status = form.getFieldValue('status');
+        if (`${status}` === '0') {
+          return false;
+        }
+        if (`${status}` === '3') {
+          return <Input {...rest} placeholder="请输入异常原因！" />;
+        }
+        return defaultRender(item);
+      },
+    },
+    {
+      title: '更新人',
+      dataIndex: 'last_update_by',
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'last_update_time',
       sorter: true,
       valueType: 'dateTime',
       hideInForm: true,
@@ -147,10 +183,10 @@ const TableList: React.FC<{}> = () => {
               setStepFormValues(record);
             }}
           >
-            配置
+            编辑
           </a>
           <Divider type="vertical" />
-          <a href="">订阅警报</a>
+          <a href="">删除</a>
         </>
       ),
     },
