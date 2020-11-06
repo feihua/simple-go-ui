@@ -80,9 +80,8 @@ const TableList: React.FC<{}> = () => {
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: '规则名称',
-      dataIndex: 'name',
-      tip: '规则名称是唯一的 key',
+      title: '机构名称',
+      dataIndex: 'title',
       formItemProps: {
         rules: [
           {
@@ -96,31 +95,35 @@ const TableList: React.FC<{}> = () => {
       },
     },
     {
-      title: '描述',
-      dataIndex: 'desc',
-      valueType: 'textarea',
+      title: '创建人',
+      dataIndex: 'create_by',
+      hideInForm: true,
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
+      title: '创建时间',
+      dataIndex: 'create_time',
       sorter: true,
+      valueType: 'dateTime',
       hideInForm: true,
-      renderText: (val: string) => `${val} 万`,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      hideInForm: true,
-      valueEnum: {
-        0: { text: '关闭', status: 'Default' },
-        1: { text: '运行中', status: 'Processing' },
-        2: { text: '已上线', status: 'Success' },
-        3: { text: '异常', status: 'Error' },
+      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+        const status = form.getFieldValue('status');
+        if (`${status}` === '0') {
+          return false;
+        }
+        if (`${status}` === '3') {
+          return <Input {...rest} placeholder="请输入异常原因！" />;
+        }
+        return defaultRender(item);
       },
     },
     {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
+      title: '更新人',
+      dataIndex: 'last_update_by',
+      hideInForm: true,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'last_update_time',
       sorter: true,
       valueType: 'dateTime',
       hideInForm: true,
@@ -147,10 +150,12 @@ const TableList: React.FC<{}> = () => {
               setStepFormValues(record);
             }}
           >
-            配置
+            添加子机构
           </a>
           <Divider type="vertical" />
-          <a href="">订阅警报</a>
+          <a href="">修改</a>
+          <Divider type="vertical" />
+          <a href="">删除</a>
         </>
       ),
     },

@@ -64,7 +64,7 @@
         component: './system/menu',
       },
       {
-        name: '部门管理',
+        name: '机构管理',
         icon: 'table',
         path: '/system/dept/list',
         component: './system/dept',
