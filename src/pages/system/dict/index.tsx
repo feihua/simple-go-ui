@@ -91,7 +91,7 @@ const TableList: React.FC<{}> = () => {
         rules: [
           {
             required: true,
-            message: '规则名称为必填项',
+            message: '数据值为必填项',
           },
         ],
       },
@@ -102,15 +102,39 @@ const TableList: React.FC<{}> = () => {
     {
       title: '标签名',
       dataIndex: 'label',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '标签名为必填项',
+          },
+        ],
+      },
     },
     {
       title: '类型',
       dataIndex: 'type',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '类型为必填项',
+          },
+        ],
+      },
     },
     {
       title: '描述',
       dataIndex: 'description',
       valueType: 'textarea',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '描述为必填项',
+          },
+        ],
+      },
     },
     {
       title: '排序',
@@ -130,6 +154,14 @@ const TableList: React.FC<{}> = () => {
       title: '备注',
       dataIndex: 'remarks',
       valueType: 'textarea',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '备注为必填项',
+          },
+        ],
+      },
     },
     {
       title: '创建人',
