@@ -82,6 +82,7 @@ const TableList: React.FC<{}> = () => {
     {
       title: '编号',
       dataIndex: 'id',
+      hideInForm: true,
     },
     {
       title: '数据值',
@@ -114,6 +115,7 @@ const TableList: React.FC<{}> = () => {
     {
       title: '排序',
       dataIndex: 'sort',
+      hideInForm: true,
     },
     {
       title: '状态',
@@ -132,6 +134,7 @@ const TableList: React.FC<{}> = () => {
     {
       title: '创建人',
       dataIndex: 'create_by',
+      hideInForm: true,
     },
     {
       title: '创建时间',
@@ -153,6 +156,7 @@ const TableList: React.FC<{}> = () => {
     {
       title: '更新人',
       dataIndex: 'last_update_by',
+      hideInForm: true,
     },
     {
       title: '更新时间',
