@@ -80,6 +80,10 @@ const TableList: React.FC<{}> = () => {
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
   const columns: ProColumns<TableListItem>[] = [
     {
+      title: '编号',
+      dataIndex: 'id',
+    },
+    {
       title: '用户名',
       dataIndex: 'name',
       formItemProps: {
@@ -121,6 +125,27 @@ const TableList: React.FC<{}> = () => {
     {
       title: '创建时间',
       dataIndex: 'create_time',
+      valueType: 'dateTime',
+      hideInForm: true,
+      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+        const status = form.getFieldValue('status');
+        if (`${status}` === '0') {
+          return false;
+        }
+        if (`${status}` === '3') {
+          return <Input {...rest} placeholder="请输入异常原因！" />;
+        }
+        return defaultRender(item);
+      },
+    },
+    {
+      title: '更新人',
+      dataIndex: 'last_update_by',
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'last_update_time',
+      sorter: true,
       valueType: 'dateTime',
       hideInForm: true,
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
