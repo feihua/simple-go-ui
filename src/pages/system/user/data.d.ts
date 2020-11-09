@@ -11,6 +11,9 @@ export interface TableListItem {
   updatedAt: Date;
   createdAt: Date;
   progress: number;
+  nick_name: string;
+  mobile: string;
+  email: string;
 }
 
 export interface TableListPagination {
@@ -28,9 +31,12 @@ export interface TableListParams {
   status?: string;
   name?: string;
   desc?: string;
-  key?: number;
+  id?: number;
   pageSize?: number;
   currentPage?: number;
   filter?: { [key: string]: any[] };
   sorter?: { [key: string]: any };
+  nick_name?: string;
+  mobile?: string;
+  email?: string;
 }

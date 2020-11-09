@@ -38,8 +38,8 @@ const handleUpdate = async (fields: FormValueType) => {
   try {
     await updateRule({
       name: fields.name,
-      desc: fields.desc,
-      key: fields.id,
+      remark: fields.remark,
+      id: fields.id,
     });
     hide();
 

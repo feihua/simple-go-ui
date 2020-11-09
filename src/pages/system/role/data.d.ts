@@ -5,7 +5,7 @@ export interface TableListItem {
   avatar: string;
   name: string;
   owner: string;
-  desc: string;
+  remark: string;
   callNo: number;
   status: number;
   updatedAt: Date;
@@ -25,9 +25,10 @@ export interface TableListData {
 }
 
 export interface TableListParams {
+  id?: number;
   status?: string;
   name?: string;
-  desc?: string;
+  remark?: string;
   key?: number;
   pageSize?: number;
   currentPage?: number;

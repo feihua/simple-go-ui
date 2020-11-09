@@ -5,12 +5,17 @@ export interface TableListItem {
   avatar: string;
   name: string;
   owner: string;
-  desc: string;
+  description: string;
   callNo: number;
   status: number;
   updatedAt: Date;
   createdAt: Date;
   progress: number;
+  value?: string;
+  label?: string;
+  type?: string;
+  remarks?: remarks;
+
 }
 
 export interface TableListPagination {
@@ -25,12 +30,17 @@ export interface TableListData {
 }
 
 export interface TableListParams {
+  id?: number;
   status?: string;
   name?: string;
-  desc?: string;
+  description?: string;
   key?: number;
   pageSize?: number;
   currentPage?: number;
   filter?: { [key: string]: any[] };
   sorter?: { [key: string]: any };
+  value?: string;
+  label?: string;
+  type?: string;
+  remarks?: remarks;
 }

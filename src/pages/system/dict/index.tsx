@@ -37,9 +37,12 @@ const handleUpdate = async (fields: FormValueType) => {
   const hide = message.loading('正在配置');
   try {
     await updateRule({
-      name: fields.name,
-      desc: fields.desc,
-      key: fields.id,
+      value: fields.value,
+      description: fields.description,
+      label: fields.label,
+      id: fields.id,
+      type: fields.type,
+      remarks: fields.remarks,
     });
     hide();
 
@@ -134,6 +137,7 @@ const TableList: React.FC<{}> = () => {
         ],
       },
       render: (dom, entity) => {
+        console.log(entity,1111111111)
         return <a onClick={() => setRow(entity)}>{dom}</a>;
       },
     },
@@ -148,6 +152,7 @@ const TableList: React.FC<{}> = () => {
           },
         ],
       },
+
     },
     {
       title: '类型',
@@ -352,15 +357,15 @@ const TableList: React.FC<{}> = () => {
         }}
         closable={false}
       >
-        {row?.name && (
+        {row?.label && (
           <ProDescriptions<TableListItem>
             column={2}
-            title={row?.name}
+            title={row?.label}
             request={async () => ({
               data: row || {},
             })}
             params={{
-              id: row?.name,
+              id: row?.label,
             }}
             columns={columns}
           />

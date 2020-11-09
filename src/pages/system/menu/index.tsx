@@ -285,15 +285,15 @@ const TableList: React.FC<{}> = () => {
         }}
         closable={false}
       >
-        {row?.name && (
+        {row?.title && (
           <ProDescriptions<TableListItem>
             column={2}
-            title={row?.name}
+            title={row?.title}
             request={async () => ({
               data: row || {},
             })}
             params={{
-              id: row?.name,
+              id: row?.title,
             }}
             columns={columns}
           />
