@@ -7,6 +7,16 @@ export async function queryRule(params?: TableListParams) {
   });
 }
 
+export async function removeRuleOne(params: { id: number }) {
+  return request('/api/user/delete', {
+    method: 'POST',
+    data: {
+      ...params,
+      method: 'delete',
+    },
+  });
+}
+
 export async function removeRule(params: { key: number[] }) {
   return request('/api/rule/delete', {
     method: 'POST',

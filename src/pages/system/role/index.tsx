@@ -1,5 +1,5 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Divider, message, Input, Drawer } from 'antd';
+import { PlusOutlined, ExclamationCircleOutlined  } from '@ant-design/icons';
+import {Button, Divider, message, Input, Drawer, Modal} from 'antd';
 import React, { useState, useRef } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
@@ -7,7 +7,9 @@ import ProDescriptions from '@ant-design/pro-descriptions';
 import CreateForm from './components/CreateForm';
 import UpdateForm, { FormValueType } from './components/UpdateForm';
 import { TableListItem } from './data.d';
-import { queryRule, updateRule, addRule, removeRule } from './service';
+import { queryRule, updateRule, addRule, removeRule, removeRuleOne } from './service';
+
+const { confirm } = Modal;
 
 /**
  * 添加节点
@@ -37,7 +39,7 @@ const handleUpdate = async (fields: FormValueType) => {
     await updateRule({
       name: fields.name,
       desc: fields.desc,
-      key: fields.key,
+      key: fields.id,
     });
     hide();
 
@@ -51,6 +53,26 @@ const handleUpdate = async (fields: FormValueType) => {
 };
 
 /**
+ *  删除节点(单个)
+ * @param id
+ */
+const handleRemoveOne = async (id: number) => {
+  const hide = message.loading('正在删除');
+  try {
+    await removeRuleOne({
+      id:id
+    });
+    hide();
+    message.success('删除成功，即将刷新');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('删除失败，请重试');
+    return false;
+  }
+};
+
+/**
  *  删除节点
  * @param selectedRows
  */
@@ -59,7 +81,7 @@ const handleRemove = async (selectedRows: TableListItem[]) => {
   if (!selectedRows) return true;
   try {
     await removeRule({
-      key: selectedRows.map((row) => row.key),
+      key: selectedRows.map((row) => row.id),
     });
     hide();
     message.success('删除成功，即将刷新');
@@ -78,6 +100,22 @@ const TableList: React.FC<{}> = () => {
   const actionRef = useRef<ActionType>();
   const [row, setRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+
+  const showDeleteConfirm =  (id: number) => {
+    confirm({
+      title: '是否删除记录?',
+      icon: <ExclamationCircleOutlined/>,
+      content: '删除的记录不能恢复,请确认!',
+      onOk() {
+        handleRemoveOne(id).then(r => {
+          actionRef.current?.reloadAndRest?.();
+        })
+      },
+      onCancel() {
+      },
+    });
+  };
+
   const columns: ProColumns<TableListItem>[] = [
     {
       title: '编号',
@@ -171,18 +209,16 @@ const TableList: React.FC<{}> = () => {
       valueType: 'option',
       render: (_, record) => (
         <>
-          <a
-            onClick={() => {
-              handleUpdateModalVisible(true);
-              setStepFormValues(record);
-            }}
-          >
-            编辑
-          </a>
+          <Button type="primary" size="small" onClick={() => {
+            handleUpdateModalVisible(true);
+            setStepFormValues(record);
+          }}>编辑</Button>
           <Divider type="vertical" />
-          <a href="">分配菜单</a>
+          <Button type="primary" size="small">分配菜单</Button>
           <Divider type="vertical" />
-          <a href="">删除</a>
+          <Button type="primary" danger  size="small" onClick={()=>{
+            showDeleteConfirm(record.id)
+          }}>删除</Button>
         </>
       ),
     },
@@ -193,7 +229,7 @@ const TableList: React.FC<{}> = () => {
       <ProTable<TableListItem>
         headerTitle="查询表格"
         actionRef={actionRef}
-        rowKey="key"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}
@@ -242,7 +278,7 @@ const TableList: React.FC<{}> = () => {
               }
             }
           }}
-          rowKey="key"
+          rowKey="id"
           type="form"
           columns={columns}
         />
