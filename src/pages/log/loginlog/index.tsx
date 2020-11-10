@@ -1,5 +1,5 @@
-import { PlusOutlined, ExclamationCircleOutlined  } from '@ant-design/icons';
-import {Button, message, Input, Drawer, Divider, Modal} from 'antd';
+import { ExclamationCircleOutlined  } from '@ant-design/icons';
+import {Button, message, Input, Drawer, Modal} from 'antd';
 import React, { useState, useRef } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
@@ -188,8 +188,6 @@ const TableList: React.FC<{}> = () => {
       valueType: 'option',
       render: (_, record) => (
         <>
-          <Button type="primary" size="small">查看</Button>
-          <Divider type="vertical" />
           <Button type="primary" danger  size="small" onClick={()=>{
             showDeleteConfirm(record.id)
           }}>删除</Button>
@@ -207,11 +205,11 @@ const TableList: React.FC<{}> = () => {
         search={{
           labelWidth: 120,
         }}
-        toolBarRender={() => [
-          <Button type="primary" onClick={() => handleModalVisible(true)}>
-            <PlusOutlined /> 新建
-          </Button>,
-        ]}
+        // toolBarRender={() => [
+        //   <Button type="primary" onClick={() => handleModalVisible(true)}>
+        //     <PlusOutlined /> 新建
+        //   </Button>,
+        // ]}
         request={(params, sorter, filter) => queryRule({ ...params, sorter, filter })}
         columns={columns}
         rowSelection={{

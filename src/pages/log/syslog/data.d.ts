@@ -11,6 +11,7 @@ export interface TableListItem {
   updatedAt: Date;
   createdAt: Date;
   progress: number;
+  user_name: string
 }
 
 export interface TableListPagination {
