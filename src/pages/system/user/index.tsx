@@ -5,6 +5,7 @@ import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import CreateForm from './components/CreateForm';
+import EditRoleForm from './components/EditRoleForm';
 import UpdateForm, { FormValueType } from './components/UpdateForm';
 import { TableListItem } from './data.d';
 import { queryRule, updateRule, addRule, removeRule, removeRuleOne } from './service';
@@ -101,6 +102,8 @@ const TableList: React.FC<{}> = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [stepFormValues, setStepFormValues] = useState({});
+  const [editModalVisible, handleEditModalVisible] = useState<boolean>(false);
+  const [stepRoleFormValues, setStepRoleFormValues] = useState({});
   const actionRef = useRef<ActionType>();
   const [row, setRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
@@ -240,7 +243,11 @@ const TableList: React.FC<{}> = () => {
             setStepFormValues(record);
           }}>编辑</Button>
           <Divider type="vertical" />
-          <Button type="primary" size="small">分配角色</Button>
+          <Button type="primary" size="small" onClick={() => {
+            handleEditModalVisible(true);
+            setStepRoleFormValues(record);
+          }}
+          >分配角色</Button>
           <Divider type="vertical" />
           {/*<Button type="primary" danger  size="small" onClick={async() => {*/}
           {/*  await handleRemoveOne(record.id)*/}
@@ -330,6 +337,27 @@ const TableList: React.FC<{}> = () => {
           }}
           updateModalVisible={updateModalVisible}
           values={stepFormValues}
+        />
+      ) : null}
+
+      {stepRoleFormValues && Object.keys(stepRoleFormValues).length ? (
+        <EditRoleForm
+          onSubmit={async (value) => {
+            const success = await handleUpdate(value);
+            if (success) {
+              handleEditModalVisible(false);
+              setStepRoleFormValues({});
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
+            }
+          }}
+          onCancel={() => {
+            handleEditModalVisible(false);
+            setStepRoleFormValues({});
+          }}
+          editModalVisible={editModalVisible}
+          values={stepRoleFormValues}
         />
       ) : null}
 

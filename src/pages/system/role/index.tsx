@@ -5,6 +5,7 @@ import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import CreateForm from './components/CreateForm';
+import MenuForm from './components/MenuForm';
 import UpdateForm, { FormValueType } from './components/UpdateForm';
 import { TableListItem } from './data.d';
 import { queryRule, updateRule, addRule, removeRule, removeRuleOne } from './service';
@@ -96,7 +97,9 @@ const handleRemove = async (selectedRows: TableListItem[]) => {
 const TableList: React.FC<{}> = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
+  const [updateMenuModalVisible, handleUpdateMenuModalVisible] = useState<boolean>(false);
   const [stepFormValues, setStepFormValues] = useState({});
+  const [stepMenuFormValues, setMenuStepFormValues] = useState({});
   const actionRef = useRef<ActionType>();
   const [row, setRow] = useState<TableListItem>();
   const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
@@ -214,7 +217,11 @@ const TableList: React.FC<{}> = () => {
             setStepFormValues(record);
           }}>编辑</Button>
           <Divider type="vertical" />
-          <Button type="primary" size="small">分配菜单</Button>
+          <Button type="primary" size="small" onClick={() => {
+            handleUpdateMenuModalVisible(true);
+            setMenuStepFormValues(record);
+          }}
+          >分配菜单</Button>
           <Divider type="vertical" />
           <Button type="primary" danger  size="small" onClick={()=>{
             showDeleteConfirm(record.id)
@@ -301,6 +308,27 @@ const TableList: React.FC<{}> = () => {
           }}
           updateModalVisible={updateModalVisible}
           values={stepFormValues}
+        />
+      ) : null}
+
+      {stepMenuFormValues && Object.keys(stepMenuFormValues).length ? (
+        <MenuForm
+          onSubmit={async (value) => {
+            const success = await handleUpdate(value);
+            if (success) {
+              handleUpdateMenuModalVisible(false);
+              setMenuStepFormValues({});
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
+            }
+          }}
+          onCancel={() => {
+            handleUpdateMenuModalVisible(false);
+            setMenuStepFormValues({});
+          }}
+          updateMenuModalVisible={updateMenuModalVisible}
+          values={stepMenuFormValues}
         />
       ) : null}
 
