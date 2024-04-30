@@ -2,7 +2,7 @@ import { request } from 'umi';
 import type { TableListParams } from './data.d';
 
 export async function querySysLog(params: TableListParams) {
-  return request('/api/log/operate/queryOperateLogList', {
+  return request('/api/sysLog/queryOperateLogList', {
     method: 'POST',
     data: {
       ...params,
@@ -11,7 +11,7 @@ export async function querySysLog(params: TableListParams) {
 }
 
 export async function removeSysLog(params: { ids: number[] }) {
-  return request('/api/log/operate/deleteOperateLog', {
+  return request('/api/sysLog/deleteOperateLogByIds', {
     method: 'POST',
     data: {
       ...params,

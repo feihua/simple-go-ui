@@ -1,7 +1,8 @@
-import { request } from 'umi';
-import { RoleListParams, RoleListItem } from './data.d';
+import {request} from 'umi';
+import {RoleListParams, RoleListItem} from './data.d';
 
-export async function queryRole(params?: RoleListParams) {
+export async function queryRole(params: RoleListParams) {
+  params.statusId = params.statusId ? Number(params.statusId) : 2;
   return request('/api/role/queryRoleList', {
     method: 'POST',
     data: {
@@ -10,12 +11,9 @@ export async function queryRole(params?: RoleListParams) {
   });
 }
 
-export async function queryMenuByRoleId(params: { roleId?: number }) {
-  return request('/api/role/queryRoleMenuList', {
-    method: 'POST',
-    data: {
-      ...params,
-    },
+export async function queryMenuByRoleId(roleId: number) {
+  return request('/api/role/queryRoleMenuList?roleId=' + roleId, {
+    method: 'GET',
   });
 }
 

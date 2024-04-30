@@ -21,6 +21,7 @@ export interface RoleListParams {
   pageSize?: number;
   current?: number;
   currentPage?: number;
+  statusId?: number;
   filter?: { [key: string]: any[] };
   sorter?: { [key: string]: any };
 }

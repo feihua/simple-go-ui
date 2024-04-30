@@ -185,23 +185,38 @@ const errorHandler = (error: any) => {
 
 // 请求拦截
 const addToken: RequestInterceptor = (url: string, options: RequestOptionsInit) => {
-  const { method, data } = options;
-  console.log('请求地址：' + method + ': ' + url);
-  console.log('请求参数：' + JSON.stringify(data));
-
+  const {method, data} = options
   options.headers = {
     Authorization: 'Bearer ' + localStorage.getItem('token'),
   };
-  return {
-    url,
-    options,
-  };
+
+  if (data && data.current) {
+    data.pageNo = data.current;
+    delete data.current;
+    options.data = data
+  }
+
+  console.log("请求地址：" + method + ': ' + url)
+  console.log("请求参数：" + JSON.stringify(data))
+  return {url, options};
 };
 
 // 响应拦截
+// @ts-ignore
 const res: ResponseInterceptor = async (response: Response) => {
-  console.log('响应数据: ' + JSON.stringify(await response.clone().json()));
-  return response;
+  const resp = await response.clone().json();
+  console.log('响应数据: ' + JSON.stringify(resp));
+
+  const {code, success, msg} = resp;
+  let data = resp.data;
+  if (code === 200 && Object.prototype.toString.call(data) === '[object Object]' && data.list) {
+    const total = data.total;
+    data = data.list;
+    return {data, code, success, msg, total};
+  } else {
+    return response;
+  }
+
 };
 
 export const request: RequestConfig = {

@@ -228,7 +228,7 @@ const TableList: React.FC<{}> = () => {
             type="primary"
             danger
             icon={<DeleteOutlined />}
-            disabled={!hasPm('/api/user/deleteUser')}
+            disabled={!hasPm('/api/user/deleteUserByIds')}
             onClick={() => {
               showDeleteConfirm(record);
             }}

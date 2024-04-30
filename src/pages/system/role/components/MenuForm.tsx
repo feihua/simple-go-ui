@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Form, Input, Modal, Tree } from 'antd';
-import { RoleListItem } from '../data.d';
-import { queryMenuByRoleId } from '@/pages/system/role/service';
-import { tree as toTree } from '@/utils/utils';
+import React, {useEffect, useState} from 'react';
+import {Form, Input, Modal, Tree} from 'antd';
+import {RoleListItem} from '../data.d';
+import {queryMenuByRoleId} from '@/pages/system/role/service';
+import {tree as toTree} from '@/utils/utils';
 
 export interface MenuFormProps {
   onCancel: () => void;
@@ -10,11 +10,12 @@ export interface MenuFormProps {
   updateMenuModalVisible: boolean;
   currentData: Partial<RoleListItem>;
 }
+
 const FormItem = Form.Item;
 
 const formLayout = {
-  labelCol: { span: 7 },
-  wrapperCol: { span: 13 },
+  labelCol: {span: 7},
+  wrapperCol: {span: 13},
 };
 
 const UpdateRoleForm: React.FC<MenuFormProps> = (props) => {
@@ -24,7 +25,7 @@ const UpdateRoleForm: React.FC<MenuFormProps> = (props) => {
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
   const [selectedKey, setSelectedKey] = useState<number[]>([]);
 
-  const { onSubmit, onCancel, updateMenuModalVisible, currentData } = props;
+  const {onSubmit, onCancel, updateMenuModalVisible, currentData} = props;
 
   const handleSubmit = () => {
     if (!form) return;
@@ -45,14 +46,14 @@ const UpdateRoleForm: React.FC<MenuFormProps> = (props) => {
     if (updateMenuModalVisible) {
       setSelectedKey([]);
       setCheckedKeys([]);
-      queryMenuByRoleId({ roleId: currentData.id }).then((res) => {
-        const tr = toTree(res.data.menuRoleList, 0, 'parentId');
+      queryMenuByRoleId(currentData.id || 1).then((res) => {
+        const tr = toTree(res.data.menuList, 0, 'parentId');
         // @ts-ignore
         setTreeData(tr);
 
-        if (res.data.roleMenus) {
+        if (res.data.roleIds) {
           // @ts-ignore
-          const map = res.data.roleMenus.map((r) => r + '');
+          const map = res.data.roleIds.map((r) => r + '');
           setSelectedKey(map);
           setCheckedKeys(map);
         }
@@ -70,7 +71,7 @@ const UpdateRoleForm: React.FC<MenuFormProps> = (props) => {
     return (
       <>
         <FormItem name="id" label="主键" hidden>
-          <Input id="update-id" placeholder="请输入主键" />
+          <Input id="update-id" placeholder="请输入主键"/>
         </FormItem>
         <Tree
           checkable
@@ -84,19 +85,20 @@ const UpdateRoleForm: React.FC<MenuFormProps> = (props) => {
           // onSelect={onSelect}
           // selectedKeys={selectedKeys}
           treeData={treeData}
+          fieldNames={{"key": "id", "title": "menuName"}}
         />
       </>
     );
   };
 
-  const modalFooter = { okText: '保存', onOk: handleSubmit, onCancel };
+  const modalFooter = {okText: '保存', onOk: handleSubmit, onCancel};
 
   return (
     <Modal
       forceRender
       destroyOnClose
       title="分配角色菜单"
-      visible={updateMenuModalVisible}
+      open={updateMenuModalVisible}
       {...modalFooter}
     >
       <Form {...formLayout} form={form} onFinish={handleFinish}>

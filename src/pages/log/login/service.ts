@@ -6,7 +6,7 @@ import type { TableListParams } from './data.d';
  * @param params
  */
 export async function queryLoginLog(params: TableListParams) {
-  return request('/api/log/login/queryLoginLogList', {
+  return request('/api/loginLog/queryLoginLogList', {
     method: 'POST',
     data: {
       ...params,
@@ -19,7 +19,7 @@ export async function queryLoginLog(params: TableListParams) {
  * @param params
  */
 export async function removeLoginLog(params: { ids: number[] }) {
-  return request('/api/log/login/deleteLoginLog', {
+  return request('/api/loginLog/deleteLoginLogByIds', {
     method: 'POST',
     data: {
       ...params,

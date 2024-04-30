@@ -1,10 +1,8 @@
-import { request } from 'umi';
-import { UpdatePasswordParams, UserListItem, UserListParams } from './data.d';
+import {request} from 'umi';
+import {UpdatePasswordParams, UserListItem, UserListParams} from './data.d';
 
 export async function queryUserList(params: UserListParams) {
-  if (params.statusId) {
-    params.statusId = Number(params.statusId);
-  }
+  params.statusId = params.statusId ? Number(params.statusId) : 2;
   return request('/api/user/queryUserList', {
     method: 'POST',
     data: {
