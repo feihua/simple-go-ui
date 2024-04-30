@@ -1,48 +1,77 @@
 import { request } from 'umi';
-import { TableListParams, TableListItem } from './data.d';
+import { UpdatePasswordParams, UserListItem, UserListParams } from './data.d';
 
-export async function queryRule(params?: TableListParams) {
-  return request('/api/user/list', {
-    params,
-  });
-}
-
-export async function removeRuleOne(params: { id: number }) {
-  return request('/api/user/delete', {
+export async function queryUserList(params: UserListParams) {
+  if (params.statusId) {
+    params.statusId = Number(params.statusId);
+  }
+  return request('/api/user/queryUserList', {
     method: 'POST',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function removeRule(params: { key: number[] }) {
-  return request('/api/rule/delete', {
+export async function querySelectAllData(params?: UserListParams) {
+  return request('/api/user/selectAllData', {
     method: 'POST',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function addRule(params: TableListItem) {
-  return request('/api/user/add', {
+export async function removeUser(params: { ids: number[] }) {
+  return request('/api/user/deleteUser', {
     method: 'POST',
     data: {
       ...params,
-      method: 'post',
     },
   });
 }
 
-export async function updateRule(params: TableListParams) {
-  return request('/api/user/update', {
+export async function addUser(params: UserListItem) {
+  return request('/api/user/addUser', {
     method: 'POST',
     data: {
       ...params,
-      method: 'update',
+    },
+  });
+}
+
+export async function updateUser(params: UserListItem) {
+  return request('/api/user/updateUser', {
+    method: 'POST',
+    data: {
+      ...params,
+    },
+  });
+}
+
+export async function updatePassword(params: UpdatePasswordParams) {
+  return request('/api/user/updatePassword', {
+    method: 'POST',
+    data: {
+      ...params,
+    },
+  });
+}
+
+export async function userRoleList(params: { userId: number }) {
+  return request('/api/user/queryUserRoleList', {
+    method: 'POST',
+    data: {
+      ...params,
+    },
+  });
+}
+
+export async function updateUserRole(params: { userId: number; roleIds: number[] }) {
+  return request('/api/user/updateUserRoleList', {
+    method: 'POST',
+    data: {
+      ...params,
     },
   });
 }

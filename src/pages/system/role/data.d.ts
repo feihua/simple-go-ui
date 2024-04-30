@@ -1,36 +1,25 @@
-export interface TableListItem {
+export interface RoleListItem {
   id: number;
-  disabled?: boolean;
-  href: string;
-  avatar: string;
-  name: string;
-  owner: string;
+  statusID: number;
+  sort: number;
+  roleName: string;
   remark: string;
-  callNo: number;
-  status: number;
-  updatedAt: Date;
-  createdAt: Date;
-  progress: number;
 }
 
-export interface TableListPagination {
+export interface RoleListPagination {
   total: number;
   pageSize: number;
   current: number;
 }
 
-export interface TableListData {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
+export interface RoleListData {
+  list: RoleListItem[];
+  pagination: Partial<RoleListPagination>;
 }
 
-export interface TableListParams {
-  id?: number;
-  status?: string;
-  name?: string;
-  remark?: string;
-  key?: number;
+export interface RoleListParams {
   pageSize?: number;
+  current?: number;
   currentPage?: number;
   filter?: { [key: string]: any[] };
   sorter?: { [key: string]: any };

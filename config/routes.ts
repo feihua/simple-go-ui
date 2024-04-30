@@ -4,41 +4,53 @@
     layout: false,
     routes: [
       {
-        name: 'login',
-        path: '/user/login',
-        component: './user/login',
+        path: '/user',
+        routes: [
+          {
+            name: 'login',
+            path: '/user/login',
+            component: './user/login',
+          },
+        ],
+      },
+      {
+        component: './404',
       },
     ],
   },
   {
-    path: '/welcome',
-    name: '欢迎',
+    path: '/home',
+    name: 'home',
     icon: 'smile',
     component: './Welcome',
   },
-  // {
-  //   path: '/admin',
-  //   name: '管理页',
-  //   icon: 'crown',
-  //   component: './Admin',
-  //   routes: [
-  //     {
-  //       path: '/admin/sub-page',
-  //       name: '二级管理页',
-  //       icon: 'smile',
-  //       component: './Welcome',
-  //     },
-  //   ],
-  // },
-  // {
-  //   name: '查询表格',
-  //   icon: 'table',
-  //   path: '/list',
-  //   component: './ListTableList',
-  // },
+  {
+    path: '/admin',
+    name: 'admin',
+    icon: 'crown',
+    access: 'canAdmin',
+    component: './Admin',
+    routes: [
+      {
+        path: '/admin/sub-page',
+        name: 'sub-page',
+        icon: 'smile',
+        component: './Welcome',
+      },
+      {
+        component: './404',
+      },
+    ],
+  },
+  {
+    name: 'list.table-list',
+    icon: 'table',
+    path: '/list',
+    component: './TableList',
+  },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/home',
   },
   {
     path: '/system',
@@ -46,59 +58,60 @@
     icon: 'crown',
     routes: [
       {
-        name: '用户管理',
+        name: '用户列表',
         icon: 'table',
         path: '/system/user/list',
         component: './system/user',
       },
       {
-        name: '角色管理',
+        name: '角色列表',
         icon: 'table',
         path: '/system/role/list',
         component: './system/role',
       },
       {
-        name: '菜单管理',
+        name: '菜单列表',
         icon: 'table',
         path: '/system/menu/list',
         component: './system/menu',
-      },
-      {
-        name: '机构管理',
-        icon: 'table',
-        path: '/system/dept/list',
-        component: './system/dept',
-      },
-      {
-        name: '字典管理',
-        icon: 'table',
-        path: '/system/dict/list',
-        component: './system/dict',
-      },
-      {
-        name: '参数管理',
-        icon: 'table',
-        path: '/system/param/list',
-        component: './system/param',
       },
     ],
   },
   {
     path: '/log',
-    name: '日志管理',
+    name: '日志相关',
     icon: 'crown',
     routes: [
       {
         name: '登录日志',
         icon: 'table',
-        path: '/log/loginLog/list',
-        component: './log/loginlog',
+        path: '/log/login/list',
+        component: './log/login',
       },
       {
         name: '操作日志',
         icon: 'table',
-        path: '/log/sysLog/list',
-        component: './log/syslog',
+        path: '/log/operate/list',
+        component: './log/operate',
+      },
+    ],
+  },
+  {
+    path: '/account',
+    name: '账户相关',
+    icon: 'crown',
+    routes: [
+      {
+        name: '个人中心',
+        icon: 'table',
+        path: '/account/center',
+        component: './account/settings',
+      },
+      {
+        name: '个人设置',
+        icon: 'table',
+        path: '/account/settings',
+        component: './account/settings',
       },
     ],
   },

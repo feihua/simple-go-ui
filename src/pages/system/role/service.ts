@@ -1,48 +1,56 @@
 import { request } from 'umi';
-import { TableListParams, TableListItem } from './data.d';
+import { RoleListParams, RoleListItem } from './data.d';
 
-export async function queryRule(params?: TableListParams) {
-  return request('/api/role/list', {
-    params,
-  });
-}
-
-export async function removeRuleOne(params: { id: number }) {
-  return request('/api/role/delete', {
+export async function queryRole(params?: RoleListParams) {
+  return request('/api/role/queryRoleList', {
     method: 'POST',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function removeRule(params: { key: number[] }) {
-  return request('/api/role/delete', {
+export async function queryMenuByRoleId(params: { roleId?: number }) {
+  return request('/api/role/queryRoleMenuList', {
     method: 'POST',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function addRule(params: TableListItem) {
-  return request('/api/role/add', {
+export async function updateRoleMenu(params: { roleId: number; menuIds: number[] }) {
+  return request('/api/role/updateRoleMenuList', {
     method: 'POST',
     data: {
       ...params,
-      method: 'post',
     },
   });
 }
 
-export async function updateRule(params: TableListParams) {
-  return request('/api/role/update', {
+export async function removeRole(params: { ids: number[] }) {
+  return request('/api/role/deleteRole', {
     method: 'POST',
     data: {
       ...params,
-      method: 'update',
+    },
+  });
+}
+
+export async function addRole(params: RoleListItem) {
+  return request('/api/role/addRole', {
+    method: 'POST',
+    data: {
+      ...params,
+    },
+  });
+}
+
+export async function updateRole(params: RoleListItem) {
+  return request('/api/role/updateRole', {
+    method: 'POST',
+    data: {
+      ...params,
     },
   });
 }

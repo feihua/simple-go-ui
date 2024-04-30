@@ -1,48 +1,38 @@
 import { request } from 'umi';
-import { TableListParams, TableListItem } from './data.d';
+import { MenuListParams, MenuListItem } from './data.d';
 
-export async function queryRule(params?: TableListParams) {
-  return request('/api/menu/list', {
-    params,
-  });
-}
-
-export async function removeRuleOne(params: { id: number }) {
-  return request('/api/menu/delete', {
-    method: 'POST',
+export async function queryMenuList(params?: MenuListParams) {
+  return request('/api/menu/queryMenuList', {
+    method: 'GET',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function removeRule(params: { key: number[] }) {
-  return request('/api/menu/delete', {
+export async function removeMenu(params: { id: number }) {
+  return request('/api/menu/deleteMenu', {
     method: 'POST',
     data: {
       ...params,
-      method: 'delete',
     },
   });
 }
 
-export async function addRule(params: TableListItem) {
-  return request('/api/rule/add', {
+export async function addMenu(params: MenuListItem) {
+  return request('/api/menu/addMenu', {
     method: 'POST',
     data: {
       ...params,
-      method: 'post',
     },
   });
 }
 
-export async function updateRule(params: TableListParams) {
-  return request('/api/rule/update', {
+export async function updateMenu(params: MenuListItem) {
+  return request('/api/menu/updateMenu', {
     method: 'POST',
     data: {
       ...params,
-      method: 'update',
     },
   });
 }

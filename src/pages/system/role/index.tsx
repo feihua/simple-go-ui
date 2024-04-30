@@ -1,14 +1,20 @@
-import { PlusOutlined, ExclamationCircleOutlined  } from '@ant-design/icons';
-import {Button, Divider, message, Input, Drawer, Modal} from 'antd';
+import {
+  PlusOutlined,
+  ExclamationCircleOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
+import { Button, Divider, message, Input, Drawer, Modal } from 'antd';
 import React, { useState, useRef } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProDescriptions from '@ant-design/pro-descriptions';
-import CreateForm from './components/CreateForm';
 import MenuForm from './components/MenuForm';
-import UpdateForm, { FormValueType } from './components/UpdateForm';
-import { TableListItem } from './data.d';
-import { queryRule, updateRule, addRule, removeRule, removeRuleOne } from './service';
+import CreateRoleForm from './components/CreateRoleForm';
+import UpdateRoleForm from './components/UpdateRoleForm';
+import { RoleListItem } from './data.d';
+import { queryRole, updateRole, addRole, removeRole, updateRoleMenu } from './service';
+import { hasPm } from '@/utils/utils';
 
 const { confirm } = Modal;
 
@@ -16,10 +22,10 @@ const { confirm } = Modal;
  * 添加节点
  * @param fields
  */
-const handleAdd = async (fields: TableListItem) => {
+const handleAdd = async (fields: RoleListItem) => {
   const hide = message.loading('正在添加');
   try {
-    await addRule({ ...fields });
+    await addRole({ ...fields });
     hide();
     message.success('添加成功');
     return true;
@@ -34,41 +40,17 @@ const handleAdd = async (fields: TableListItem) => {
  * 更新节点
  * @param fields
  */
-const handleUpdate = async (fields: FormValueType) => {
-  const hide = message.loading('正在配置');
+const handleUpdate = async (fields: Partial<RoleListItem>) => {
+  const hide = message.loading('正在更新');
   try {
-    await updateRule({
-      name: fields.name,
-      remark: fields.remark,
-      id: fields.id,
-    });
+    await updateRole(fields as RoleListItem);
     hide();
 
-    message.success('配置成功');
+    message.success('更新成功');
     return true;
   } catch (error) {
     hide();
-    message.error('配置失败请重试！');
-    return false;
-  }
-};
-
-/**
- *  删除节点(单个)
- * @param id
- */
-const handleRemoveOne = async (id: number) => {
-  const hide = message.loading('正在删除');
-  try {
-    await removeRuleOne({
-      id:id
-    });
-    hide();
-    message.success('删除成功，即将刷新');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('删除失败，请重试');
+    message.error('更新失败请重试！');
     return false;
   }
 };
@@ -77,12 +59,12 @@ const handleRemoveOne = async (id: number) => {
  *  删除节点
  * @param selectedRows
  */
-const handleRemove = async (selectedRows: TableListItem[]) => {
+const handleRemove = async (selectedRows: RoleListItem[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
-    await removeRule({
-      key: selectedRows.map((row) => row.id),
+    await removeRole({
+      ids: selectedRows.map((row) => row.id),
     });
     hide();
     message.success('删除成功，即将刷新');
@@ -101,49 +83,54 @@ const TableList: React.FC<{}> = () => {
   const [stepFormValues, setStepFormValues] = useState({});
   const [stepMenuFormValues, setMenuStepFormValues] = useState({});
   const actionRef = useRef<ActionType>();
-  const [row, setRow] = useState<TableListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<TableListItem[]>([]);
+  const [row, setRow] = useState<RoleListItem>();
+  const [selectedRowsState, setSelectedRows] = useState<RoleListItem[]>([]);
 
-  const showDeleteConfirm =  (id: number) => {
+  const showDeleteConfirm = (item: RoleListItem) => {
     confirm({
       title: '是否删除记录?',
-      icon: <ExclamationCircleOutlined/>,
+      icon: <ExclamationCircleOutlined />,
       content: '删除的记录不能恢复,请确认!',
       onOk() {
-        handleRemoveOne(id).then(r => {
+        handleRemove([item]).then(() => {
           actionRef.current?.reloadAndRest?.();
-        })
+        });
       },
-      onCancel() {
-      },
+      onCancel() {},
     });
   };
 
-  const columns: ProColumns<TableListItem>[] = [
+  const columns: ProColumns<RoleListItem>[] = [
     {
       title: '编号',
       dataIndex: 'id',
-      hideInForm: true,
+      hideInSearch: true,
     },
     {
       title: '角色名称',
-      dataIndex: 'name',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            message: '角色名称为必填项',
-          },
-        ],
-      },
+      dataIndex: 'roleName',
       render: (dom, entity) => {
         return <a onClick={() => setRow(entity)}>{dom}</a>;
       },
     },
     {
+      title: '状态',
+      dataIndex: 'statusId',
+      valueEnum: {
+        1: { text: '启用', status: 'Success' },
+        0: { text: '禁用', status: 'Error' },
+      },
+    },
+    {
+      title: '排序',
+      dataIndex: 'sort',
+      hideInSearch: true,
+    },
+    {
       title: '备注',
       dataIndex: 'remark',
       valueType: 'textarea',
+      hideInSearch: true,
       formItemProps: {
         rules: [
           {
@@ -154,25 +141,11 @@ const TableList: React.FC<{}> = () => {
       },
     },
     {
-      title: '状态',
-      dataIndex: 'del_flag',
-      hideInForm: true,
-      valueEnum: {
-        0: { text: '正常', status: 'Success' },
-        1: { text: '已删除', status: 'Error' },
-      },
-    },
-    {
-      title: '创建人',
-      dataIndex: 'create_by',
-      hideInForm: true,
-    },
-    {
       title: '创建时间',
-      dataIndex: 'create_time',
+      dataIndex: 'createTime',
       sorter: true,
       valueType: 'dateTime',
-      hideInForm: true,
+      hideInSearch: true,
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
         const status = form.getFieldValue('status');
         if (`${status}` === '0') {
@@ -185,16 +158,11 @@ const TableList: React.FC<{}> = () => {
       },
     },
     {
-      title: '更新人',
-      dataIndex: 'last_update_by',
-      hideInForm: true,
-    },
-    {
       title: '更新时间',
-      dataIndex: 'last_update_time',
+      dataIndex: 'updateTime',
       sorter: true,
       valueType: 'dateTime',
-      hideInForm: true,
+      hideInSearch: true,
       renderFormItem: (item, { defaultRender, ...rest }, form) => {
         const status = form.getFieldValue('status');
         if (`${status}` === '0') {
@@ -212,20 +180,41 @@ const TableList: React.FC<{}> = () => {
       valueType: 'option',
       render: (_, record) => (
         <>
-          <Button type="primary" size="small" onClick={() => {
-            handleUpdateModalVisible(true);
-            setStepFormValues(record);
-          }}>编辑</Button>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            disabled={!hasPm('/api/role/updateRole')}
+            onClick={() => {
+              handleUpdateModalVisible(true);
+              setStepFormValues(record);
+            }}
+          >
+            编辑
+          </Button>
           <Divider type="vertical" />
-          <Button type="primary" size="small" onClick={() => {
-            handleUpdateMenuModalVisible(true);
-            setMenuStepFormValues(record);
-          }}
-          >分配菜单</Button>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            disabled={!hasPm('/api/role/updateRoleMenuList')}
+            onClick={() => {
+              handleUpdateMenuModalVisible(true);
+              setMenuStepFormValues(record);
+            }}
+          >
+            分配菜单
+          </Button>
           <Divider type="vertical" />
-          <Button type="primary" danger  size="small" onClick={()=>{
-            showDeleteConfirm(record.id)
-          }}>删除</Button>
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            disabled={!hasPm('/api/role/deleteRole')}
+            onClick={() => {
+              showDeleteConfirm(record);
+            }}
+          >
+            删除
+          </Button>
         </>
       ),
     },
@@ -233,32 +222,36 @@ const TableList: React.FC<{}> = () => {
 
   return (
     <PageContainer>
-      <ProTable<TableListItem>
-        headerTitle="查询表格"
+      <ProTable<RoleListItem>
+        headerTitle="角色列表"
         actionRef={actionRef}
         rowKey="id"
         search={{
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <Button type="primary" onClick={() => handleModalVisible(true)}>
-            <PlusOutlined /> 新建
+          <Button
+            key={'new'}
+            type="primary"
+            disabled={!hasPm('/api/role/addRole')}
+            onClick={() => handleModalVisible(true)}
+          >
+            <PlusOutlined /> 新建角色
           </Button>,
         ]}
-        request={(params, sorter, filter) => queryRule({ ...params, sorter, filter })}
+        // @ts-ignore
+        request={(params, sorter, filter) => queryRole({ ...params, sorter, filter })}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => setSelectedRows(selectedRows),
         }}
+        pagination={{ pageSize: 10 }}
       />
       {selectedRowsState?.length > 0 && (
         <FooterToolbar
           extra={
             <div>
               已选择 <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a> 项&nbsp;&nbsp;
-              <span>
-                服务调用次数总计 {selectedRowsState.reduce((pre, item) => pre + item.callNo, 0)} 万
-              </span>
             </div>
           }
         >
@@ -271,66 +264,66 @@ const TableList: React.FC<{}> = () => {
           >
             批量删除
           </Button>
-          <Button type="primary">批量审批</Button>
         </FooterToolbar>
       )}
-      <CreateForm onCancel={() => handleModalVisible(false)} modalVisible={createModalVisible}>
-        <ProTable<TableListItem, TableListItem>
-          onSubmit={async (value) => {
-            const success = await handleAdd(value);
-            if (success) {
-              handleModalVisible(false);
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
+
+      <CreateRoleForm
+        key={'CreateRoleForm'}
+        onSubmit={async (value) => {
+          const success = await handleAdd(value);
+          if (success) {
+            handleModalVisible(false);
+            setStepFormValues({});
+            if (actionRef.current) {
+              actionRef.current.reload();
             }
-          }}
-          rowKey="id"
-          type="form"
-          columns={columns}
-        />
-      </CreateForm>
-      {stepFormValues && Object.keys(stepFormValues).length ? (
-        <UpdateForm
-          onSubmit={async (value) => {
-            const success = await handleUpdate(value);
-            if (success) {
-              handleUpdateModalVisible(false);
-              setStepFormValues({});
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
-            }
-          }}
-          onCancel={() => {
+          }
+        }}
+        onCancel={() => {
+          handleModalVisible(false);
+          setStepFormValues({});
+        }}
+        createModalVisible={createModalVisible}
+      />
+
+      <UpdateRoleForm
+        key={'UpdateRoleForm'}
+        onSubmit={async (value) => {
+          const success = await handleUpdate(value);
+          if (success) {
             handleUpdateModalVisible(false);
             setStepFormValues({});
-          }}
-          updateModalVisible={updateModalVisible}
-          values={stepFormValues}
-        />
-      ) : null}
-
-      {stepMenuFormValues && Object.keys(stepMenuFormValues).length ? (
-        <MenuForm
-          onSubmit={async (value) => {
-            const success = await handleUpdate(value);
-            if (success) {
-              handleUpdateMenuModalVisible(false);
-              setMenuStepFormValues({});
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
+            if (actionRef.current) {
+              actionRef.current.reload();
             }
-          }}
-          onCancel={() => {
+          }
+        }}
+        onCancel={() => {
+          handleUpdateModalVisible(false);
+          setStepFormValues({});
+        }}
+        updateModalVisible={updateModalVisible}
+        currentData={stepFormValues}
+      />
+
+      <MenuForm
+        onSubmit={async (value) => {
+          const success = await updateRoleMenu(value);
+          if (success) {
             handleUpdateMenuModalVisible(false);
             setMenuStepFormValues({});
-          }}
-          updateMenuModalVisible={updateMenuModalVisible}
-          values={stepMenuFormValues}
-        />
-      ) : null}
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+        onCancel={() => {
+          handleUpdateMenuModalVisible(false);
+          setMenuStepFormValues({});
+        }}
+        updateMenuModalVisible={updateMenuModalVisible}
+        currentData={stepMenuFormValues}
+      />
 
       <Drawer
         width={600}
@@ -340,16 +333,17 @@ const TableList: React.FC<{}> = () => {
         }}
         closable={false}
       >
-        {row?.name && (
-          <ProDescriptions<TableListItem>
+        {row?.id && (
+          <ProDescriptions<RoleListItem>
             column={2}
-            title={row?.name}
+            title={row?.id}
             request={async () => ({
               data: row || {},
             })}
             params={{
-              id: row?.name,
+              id: row?.id,
             }}
+            // @ts-ignore
             columns={columns}
           />
         )}

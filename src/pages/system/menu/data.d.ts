@@ -1,35 +1,29 @@
-export interface TableListItem {
+export interface MenuListItem {
   id: number;
-  disabled?: boolean;
-  href: string;
-  avatar: string;
-  name: string;
-  owner: string;
-  desc: string;
-  callNo: number;
-  status: number;
-  updatedAt: Date;
-  createdAt: Date;
-  progress: number;
-  title: string;
+  statusId?: number;
+  sort?: number;
+  parentId?: number;
+  menuName: string;
+  label?: string;
+  menuURL?: string;
+  menuIcon?: string;
+  apiURL?: string;
+  remark?: string;
+  menuType?: number;
 }
 
-export interface TableListPagination {
+export interface MenuListPagination {
   total: number;
   pageSize: number;
   current: number;
 }
 
-export interface TableListData {
-  list: TableListItem[];
-  pagination: Partial<TableListPagination>;
+export interface MenuListData {
+  list: MenuListItem[];
+  pagination: Partial<MenuListPagination>;
 }
 
-export interface TableListParams {
-  status?: string;
-  name?: string;
-  desc?: string;
-  key?: number;
+export interface MenuListParams {
   pageSize?: number;
   currentPage?: number;
   filter?: { [key: string]: any[] };

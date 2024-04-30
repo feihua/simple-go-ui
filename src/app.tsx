@@ -1,29 +1,71 @@
-import React from 'react';
-import { BasicLayoutProps, Settings as LayoutSettings } from '@ant-design/pro-layout';
-import { notification } from 'antd';
-import { history, RequestConfig } from 'umi';
+import {
+  MenuDataItem,
+  PageLoading,
+  SettingDrawer,
+  Settings as LayoutSettings,
+} from '@ant-design/pro-layout';
+import { history, RunTimeLayoutConfig } from 'umi';
 import RightContent from '@/components/RightContent';
-// import Footer from '@/components/Footer';
-import { ResponseError } from 'umi-request';
-import { queryCurrent } from './services/user';
+import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import defaultSettings from '../config/defaultSettings';
+import { tree } from '@/utils/utils';
+import {
+  AlertOutlined,
+  DeleteOutlined,
+  DollarCircleOutlined,
+  FrownOutlined,
+  GiftOutlined,
+  HeartOutlined,
+  SettingOutlined,
+  SmileOutlined,
+} from '@ant-design/icons';
+import { RequestConfig } from '@@/plugin-request/request';
+// @ts-ignore
+import { RequestInterceptor, RequestOptionsInit, ResponseInterceptor } from 'umi-request';
+import { notification } from 'antd';
 
+const IconMap = {
+  SmileOutlined: <SmileOutlined />,
+  HeartOutlined: <HeartOutlined />,
+  SettingOutlined: <SettingOutlined />,
+  DeleteOutlined: <DeleteOutlined />,
+  FrownOutlined: <FrownOutlined />,
+  GiftOutlined: <GiftOutlined />,
+  DollarCircleOutlined: <DollarCircleOutlined />,
+  AlertOutlined: <AlertOutlined />,
+};
+
+const loginPath = '/user/login';
+
+/** 获取用户信息比较慢的时候会展示一个 loading */
+export const initialStateConfig = {
+  loading: <PageLoading />,
+};
+
+/**
+ * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
+ * */
 export async function getInitialState(): Promise<{
-  settings?: LayoutSettings;
+  settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
+  loading?: boolean;
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
 }> {
   const fetchUserInfo = async () => {
     try {
-      const currentUser = await queryCurrent();
-      return currentUser;
+      const msg = await queryCurrentUser();
+      // @ts-ignore
+      localStorage.setItem('menuTree', JSON.stringify(msg.data.menus));
+      // @ts-ignore
+      localStorage.setItem('btnUrl', JSON.stringify(msg.data.apiUrls));
+      return msg.data;
     } catch (error) {
-      history.push('/user/login');
+      history.push(loginPath);
     }
     return undefined;
   };
   // 如果是登录页面，不执行
-  if (history.location.pathname !== '/user/login') {
+  if (history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
     return {
       fetchUserInfo,
@@ -37,24 +79,63 @@ export async function getInitialState(): Promise<{
   };
 }
 
-export const layout = ({
-  initialState,
-}: {
-  initialState: { settings?: LayoutSettings; currentUser?: API.CurrentUser };
-}): BasicLayoutProps => {
+const loopMenuItem = (menus: any[]): MenuDataItem[] =>
+  menus.map(({ icon, children, ...item }) => {
+    return {
+      ...item,
+      icon: icon && IconMap[icon as string],
+      children: children && loopMenuItem(children),
+    };
+  });
+
+const menuDataRender: any = () => {
+  const item = localStorage.getItem('menuTree') + '';
+
+  return loopMenuItem(tree(JSON.parse(item), 0, 'parentId'));
+
+  // return tree(JSON.parse(item), 0, "parent_id");
+};
+
+// ProLayout 支持的api https://procomponents.ant.design/components/layout
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
-    // footerRender: () => <Footer />,
+    waterMarkProps: {
+      content: initialState?.currentUser?.name,
+    },
+    menuDataRender: () => menuDataRender(),
     onPageChange: () => {
-      const { currentUser } = initialState;
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!currentUser && location.pathname !== '/user/login') {
-        history.push('/user/login');
+      if (!initialState?.currentUser && location.pathname !== loginPath) {
+        history.push(loginPath);
       }
     },
     menuHeaderRender: undefined,
+    // 自定义 403 页面
+    // unAccessible: <div>unAccessible</div>,
+    // 增加一个 loading 的状态
+    childrenRender: (children, props) => {
+      // if (initialState?.loading) return <PageLoading />;
+      return (
+        <>
+          {children}
+          {!props.location?.pathname?.includes('/login') && (
+            <SettingDrawer
+              enableDarkTheme
+              settings={initialState?.settings}
+              onSettingChange={(settings) => {
+                setInitialState((preInitialState) => ({
+                  ...preInitialState,
+                  settings,
+                }));
+              }}
+            />
+          )}
+        </>
+      );
+    },
     ...initialState?.settings,
   };
 };
@@ -81,7 +162,7 @@ const codeMessage = {
 /**
  * 异常处理程序
  */
-const errorHandler = (error: ResponseError) => {
+const errorHandler = (error: any) => {
   const { response } = error;
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
@@ -102,6 +183,29 @@ const errorHandler = (error: ResponseError) => {
   throw error;
 };
 
+// 请求拦截
+const addToken: RequestInterceptor = (url: string, options: RequestOptionsInit) => {
+  const { method, data } = options;
+  console.log('请求地址：' + method + ': ' + url);
+  console.log('请求参数：' + JSON.stringify(data));
+
+  options.headers = {
+    Authorization: 'Bearer ' + localStorage.getItem('token'),
+  };
+  return {
+    url,
+    options,
+  };
+};
+
+// 响应拦截
+const res: ResponseInterceptor = async (response: Response) => {
+  console.log('响应数据: ' + JSON.stringify(await response.clone().json()));
+  return response;
+};
+
 export const request: RequestConfig = {
   errorHandler,
+  requestInterceptors: [addToken],
+  responseInterceptors: [res],
 };
